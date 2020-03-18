@@ -67,7 +67,7 @@ def make_dictionary_with_seg_file(list_seg):
             dictionary_segfile[elem[7]]+=1
     return(dictionary_segfile)
 
-
+#this is a commentary
 
 id_nb_line=make_dictionary_with_seg_file(seg_list) #create a dictionary containing the id and the number of line associated to this id 
 association_id_line=make_dictionnary_from_seg_list(seg_list)#create a dictionnary where each id of the 2nd species contain all the lines associated
