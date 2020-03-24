@@ -28,7 +28,7 @@ else
             filename_ref="${filename_ref%.*}"
             file_seg="$filename_ref.seg"
             echo "#############################Importing RefGene file to seg format#####################################"
-            seg-import genePred $dir/$filename_ref.$extension > $dir/$file_seg
+            seg-import -c genePred $dir/$filename_ref.$extension > $dir/$file_seg
             newfilename='modified_'$file_seg
             python3 modify_file.py $dir/$file_seg $dir/$newfilename $organism
             seg-sort $dir/$newfilename > $dir/sort_$file_seg
