@@ -97,27 +97,64 @@ def make_decision1vs1(dict_id_id, dict_id_line,dict_annot_sp1,dict_annot_sp2,id_
     end_gene_1=int(dict_annot_sp1[id_gene1][3][0])
     start_gene_2=int(dict_annot_sp2[id_gene2][2][0])
     end_gene_2=int(dict_annot_sp2[id_gene2][3][0])
-    for line in dict_id_line[id_gene2]:
+    corresponding_line=[]
+    for ligne in dict_id_line[id_gene2]:
+        if ligne[7]==id_gene1:
+            corresponding_line.append(ligne)
+    for line in corresponding_line:
         start_cmp_species1=abs(int(line[2]))
         end_cmp_species1=abs(int(line[2])+int(line[0]))
         start_cmp_species2=abs(int(line[4]))
         end_cmp_species2=abs(int(line[4])+int(line[0]))
-        if start_cmp_species1 <= start_gene_1 and start_cmp_species2 <= start_gene_2 and end_cmp_species1 >= end_gene_1 and end_cmp_species2 >= end_gene_2:
-            results='orthologous'
-            break     
-        #elif start_cmp_species1 > end_gene_1 or end_cmp_species1 < start_gene_1 or start_cmp_species2 > end_gene_2 or end_cmp_species2 <start_gene_2 :
-        #    results='non-orthologous'      
-        else :
-            results='partially_orthologous'
-    return(results)          
-"""        
-    if results == 'orthologous':
-        return(results)
-        #print(f'Results between {id_gene1} and {id_gene2} \n This genes are orthologous ################################################')
-    else :
-        return(results)
-        #print(f'Results between {id_gene1} and {id_gene2} \n This genes are non orthologous')
-"""
+        if start_cmp_species1 < end_cmp_species1 and start_cmp_species2 < end_cmp_species2:
+            if start_cmp_species1 <= start_gene_1 and start_cmp_species2 <= start_gene_2 and end_cmp_species1 >= start_gene_1 and end_cmp_species2 >= start_gene_2:
+                for exon in corresponding_line: 
+                    start_species1=abs(int(exon[2]))
+                    end_species1=abs(int(exon[2])+int(exon[0]))
+                    start_species2=abs(int(exon[4]))
+                    end_species2=abs(int(exon[4])+int(exon[0]))
+                    if start_species1 <= end_gene_1 and start_species2 <= end_gene_2 and end_species1 >= end_gene_1 and end_species2 >= end_gene_2:
+                        results='orthologous'
+                        break   
+                    else :
+                        results='partially_orthologous'
+        elif start_cmp_species2 > end_cmp_species2 and start_cmp_species1 < end_cmp_species1 :
+            if start_cmp_species1 <= start_gene_1 and start_cmp_species2 >= start_gene_2 and end_cmp_species1 >= start_gene_1 and end_cmp_species2 <= start_gene_2:
+                for exon in corresponding_line: 
+                    start_species1=abs(int(exon[2]))
+                    end_species1=abs(int(exon[2])+int(exon[0]))
+                    start_species2=abs(int(exon[4]))
+                    end_species2=abs(int(exon[4])+int(exon[0]))
+                    if start_species1 <= end_gene_1 and start_species2 >= end_gene_2 and end_species1 >= end_gene_1 and end_species2 <= end_gene_2:
+                        results='orthologous'
+                        break   
+                    else :
+                        results='partially_orthologous'
+        elif end_cmp_species1 < start_cmp_species1 and start_cmp_species2 < end_cmp_species2 :
+            if start_cmp_species1 >= start_gene_1 and start_cmp_species2 <= start_gene_2 and end_cmp_species1 <= start_gene_1 and end_cmp_species2 >= start_gene_2:
+                for exon in corresponding_line: 
+                    start_species1=abs(int(exon[2]))
+                    end_species1=abs(int(exon[2])+int(exon[0]))
+                    start_species2=abs(int(exon[4]))
+                    end_species2=abs(int(exon[4])+int(exon[0]))
+                    if start_species1 >= end_gene_1 and start_species2 <= end_gene_2 and end_species1 <= end_gene_1 and end_species2 >= end_gene_2:
+                        results='orthologous'
+                        break   
+                    else :
+                        results='partially_orthologous'
+        else : 
+            if start_cmp_species1 >= start_gene_1 and start_cmp_species2 >= start_gene_2 and end_cmp_species1 <= start_gene_1 and end_cmp_species2 <= start_gene_2:
+                for exon in corresponding_line: 
+                    start_species1=abs(int(exon[2]))
+                    end_species1=abs(int(exon[2])+int(exon[0]))
+                    start_species2=abs(int(exon[4]))
+                    end_species2=abs(int(exon[4])+int(exon[0]))
+                    if start_species1 >= end_gene_1 and start_species2 >= end_gene_2 and end_species1 <= end_gene_1 and end_species2 <= end_gene_2:
+                        results='orthologous'
+                        break   
+                    else :
+                        results='partially_orthologous'
+    return(results)
 
 
 
@@ -126,11 +163,14 @@ def make_decision_multvsmult(dict_id_id, dict_id_line,dict_annot_sp1,dict_annot_
     liste_end_exons1=list(dict_annot_sp1[id_gene1][3])
     liste_start_exons2=list(dict_annot_sp2[id_gene2][2])
     liste_end_exons2=list(dict_annot_sp2[id_gene2][3])
-    for line in dict_id_line[id_gene2]:
+    corresponding_line=[]
+    
+    for line in corresponding_line:
         start_cmp_species1=abs(int(line[2]))
         end_cmp_species1=abs(int(line[2])+int(line[0]))
         start_cmp_species2=abs(int(line[4]))
         end_cmp_species2=abs(int(line[4])+int(line[0]))
+        
         for start_exons1,end_exons1 in zip(liste_start_exons1,liste_end_exons1):
             for start_exons2, end_exons2 in zip(liste_start_exons2,liste_end_exons2):
                 #print(f'debut exons gene1 {start_exons1} fin exons gene1 {end_exons1} debut comp especes 1 {start_cmp_species1} fin cmp especes 1 {end_cmp_species1} deb comp esp 2 {start_cmp_species2} fin cmp esp2 {end_cmp_species2} debut exons gene2 {start_exons2} fin exons gene2 {end_exons2}')
@@ -148,31 +188,109 @@ def make_decision_multvsmult(dict_id_id, dict_id_line,dict_annot_sp1,dict_annot_
         return('partially_orthologous')
         #print(f'Results between {id_gene1} and {id_gene2} \n This genes are partially orthologous\n {len(liste_start_exons1)} {len(liste_start_exons2)} numbers of exons {len(dict_annot_sp1[id_gene1][2])} {len(dict_annot_sp2[id_gene2][2])}') 
 
-        
-def make_decision_same_mumber(dict_id_id, dict_id_line,dict_annot_sp1,dict_annot_sp2,id_gene1,id_gene2):
+"""        
+def make_decision_same_number(dict_id_id, dict_id_line,dict_annot_sp1,dict_annot_sp2,id_gene1,id_gene2):
     liste_start_exons1=list(dict_annot_sp1[id_gene1][2])
     liste_end_exons1=list(dict_annot_sp1[id_gene1][3])
     liste_start_exons2=list(dict_annot_sp2[id_gene2][2])
     liste_end_exons2=list(dict_annot_sp2[id_gene2][3])
     for line in dict_id_line[id_gene2]:
+        if line[7]==id_gene1:
+            start_cmp_species1=abs(int(line[2]))
+            end_cmp_species1=abs(int(line[2])+int(line[0]))
+            start_cmp_species2=abs(int(line[4]))
+            end_cmp_species2=abs(int(line[4])+int(line[0])) 
+            for start_exon1,end_exon1,start_exon2,end_exon2 in zip(liste_start_exons1,liste_end_exons1,liste_start_exons2,liste_end_exons2):
+                if start_cmp_species1 < end_cmp_species1 and start_cmp_species2 < end_cmp_species2 :
+                    if start_cmp_species1 <= int(start_exon1) and end_cmp_species1 >= int(end_exon1) and start_cmp_species2 <= int(start_exon2) and end_cmp_species2 >= int(end_exon2):
+                        liste_start_exons1.remove(start_exon1)
+                        liste_end_exons1.remove(end_exon1)
+                        liste_start_exons2.remove(start_exon2)
+                        liste_end_exons2.remove(end_exon2)
+                elif start_cmp_species1 > end_cmp_species1 and start_cmp_species2 < end_cmp_species2 :
+                    if start_cmp_species1 >= int(start_exon1) and end_cmp_species1 <= int(end_exon1) and start_cmp_species2 <= int(start_exon2) and end_cmp_species2 >= int(end_exon2):
+                        liste_start_exons1.remove(start_exon1)
+                        liste_end_exons1.remove(end_exon1)
+                        liste_start_exons2.remove(start_exon2)
+                        liste_end_exons2.remove(end_exon2)
+                elif start_cmp_species1 < end_cmp_species1 and start_cmp_species2 > end_cmp_species2 :
+                    if start_cmp_species1 <= int(start_exon1) and end_cmp_species1 >= int(end_exon1) and start_cmp_species2 >= int(start_exon2) and end_cmp_species2 <= int(end_exon2):
+                        liste_start_exons1.remove(start_exon1)
+                        liste_end_exons1.remove(end_exon1)
+                        liste_start_exons2.remove(start_exon2)
+                        liste_end_exons2.remove(end_exon2)
+                else:
+                    if start_cmp_species1 >= int(start_exon1) and end_cmp_species1 <= int(end_exon1) and start_cmp_species2 >= int(start_exon2) and end_cmp_species2 <= int(end_exon2):
+                        liste_start_exons1.remove(start_exon1)
+                        liste_end_exons1.remove(end_exon1)
+                        liste_start_exons2.remove(start_exon2)
+                        liste_end_exons2.remove(end_exon2)
+        if len(liste_start_exons1)==0 :
+            #results='orthologous'
+            #break
+            print(f'Results between {id_gene1} and {id_gene2} \n This genes are orthologous ##################################')
+        else :
+            #results='partially_orthologous'
+            print(f'Results between {id_gene1} and {id_gene2} \n This genes are partially orthologous\n {len(liste_start_exons1)} {len(liste_end_exons1)} {len(list(dict_annot_sp2[id_gene2][3]))}')
+    #return(results) 
+"""
+def make_decision_same_number(dict_id_id, dict_id_line,dict_annot_sp1,dict_annot_sp2,id_gene1,id_gene2):
+    #print('{id_gene1} {id_gene2}')
+    liste_start_exons1=list(dict_annot_sp1[id_gene1][2])
+    liste_end_exons1=list(dict_annot_sp1[id_gene1][3])
+    liste_start_exons2=list(dict_annot_sp2[id_gene2][2])
+    liste_end_exons2=list(dict_annot_sp2[id_gene2][3])
+    corresponding_line=[]
+    for ligne in dict_id_line[id_gene2]:
+        if ligne[7]==id_gene1:
+            corresponding_line.append(ligne)
+    for line in corresponding_line:
         start_cmp_species1=abs(int(line[2]))
         end_cmp_species1=abs(int(line[2])+int(line[0]))
         start_cmp_species2=abs(int(line[4]))
         end_cmp_species2=abs(int(line[4])+int(line[0]))
-        for start_exon1,end_exon1,start_exon2,end_exon2 in zip(liste_start_exons1,liste_end_exons1,liste_start_exons2,liste_end_exons2):
-            #print(f'debut exons gene1 {start_exon1} debut comp especes 1 {start_cmp_species1}\tfin exons gene1 {end_exon1}  fin cmp especes 1 {end_cmp_species1}\tdeb comp esp 2 {start_cmp_species2} debut exons gene2 {start_exon2}\tfin cmp esp2 {end_cmp_species2} fin exons gene2 {end_exon2}')
-            if start_cmp_species1 <= int(start_exon1) and end_cmp_species1 >= int(end_exon1) and start_cmp_species2 <= int(start_exon2) and end_cmp_species2 >= int(end_exon2):
-                #print(f'debut exons gene1 {start_exon1} debut comp especes 1 {start_cmp_species1}\tfin exons gene1 {end_exon1}  fin cmp especes 1 {end_cmp_species1}\tdeb comp esp 2 {start_cmp_species2} debut exons gene2 {start_exon2}\tfin cmp esp2 {end_cmp_species2} fin exons gene2 {end_exon2}')
-                liste_start_exons1.remove(start_exon1)
-                liste_end_exons1.remove(end_exon1)
-                liste_start_exons2.remove(start_exon2)
-                liste_end_exons2.remove(end_exon2)
-    if len(liste_start_exons1) == 0 :
-        return('orthologous')
+        for start_exon1,start_exon2 in zip(liste_start_exons1,liste_start_exons2):
+            if start_cmp_species1 < end_cmp_species1 and start_cmp_species2 < end_cmp_species2 : 
+                if start_cmp_species1 <= int(start_exon1) and end_cmp_species1 >= int(start_exon1) and start_cmp_species2 <= int(start_exon2) and end_cmp_species2 >= int(start_exon2):
+                    liste_start_exons1.remove(start_exon1)
+                    liste_start_exons2.remove(start_exon2)
+            elif start_cmp_species1 > end_cmp_species1 and start_cmp_species2 < end_cmp_species2 :
+                if start_cmp_species1 >= int(start_exon1) and end_cmp_species1 <= int(start_exon1) and start_cmp_species2 <= int(start_exon2) and end_cmp_species2 >= int(start_exon2):
+                    liste_start_exons1.remove(start_exon1)
+                    liste_start_exons2.remove(start_exon2)
+            elif start_cmp_species1 < end_cmp_species1 and start_cmp_species2 > end_cmp_species2 :
+                if start_cmp_species1 <= int(start_exon1) and end_cmp_species1 >= int(start_exon1) and start_cmp_species2 >= int(start_exon2) and end_cmp_species2 <= int(start_exon2):
+                    liste_start_exons1.remove(start_exon1)
+                    liste_start_exons2.remove(start_exon2)
+            else:
+                if start_cmp_species1 >= int(start_exon1) and end_cmp_species1 <= int(start_exon1) and start_cmp_species2 >= int(start_exon2) and end_cmp_species2 <= int(start_exon2):
+                    liste_start_exons1.remove(start_exon1)
+                    liste_start_exons2.remove(start_exon2)
+        for end_exon1,end_exon2 in zip(liste_end_exons1,liste_end_exons2):
+            if start_cmp_species1 < end_cmp_species1 and start_cmp_species2 < end_cmp_species2 : 
+                if start_cmp_species1 <= int(end_exon1) and end_cmp_species1 >= int(end_exon1) and start_cmp_species2 <= int(end_exon2) and end_cmp_species2 >= int(end_exon2):
+                    liste_end_exons1.remove(end_exon1)
+                    liste_end_exons2.remove(end_exon2)
+            elif start_cmp_species1 > end_cmp_species1 and start_cmp_species2 < end_cmp_species2 :
+                if start_cmp_species1 >= int(end_exon1) and end_cmp_species1 <= int(end_exon1) and start_cmp_species2 <= int(end_exon2) and end_cmp_species2 >= int(end_exon2):
+                    liste_end_exons1.remove(end_exon1)
+                    liste_end_exons2.remove(end_exon2)
+            elif start_cmp_species1 < end_cmp_species1 and start_cmp_species2 > end_cmp_species2 :
+                if start_cmp_species1 <= int(end_exon1) and end_cmp_species1 >= int(end_exon1) and start_cmp_species2 >= int(end_exon2) and end_cmp_species2 <= int(end_exon2):
+                    liste_end_exons1.remove(end_exon1)
+                    liste_end_exons2.remove(end_exon2)
+            else:
+                if start_cmp_species1 >= int(end_exon1) and end_cmp_species1 <= int(end_exon1) and start_cmp_species2 >= int(end_exon2) and end_cmp_species2 <= int(end_exon2):
+                    liste_end_exons1.remove(end_exon1)
+                    liste_end_exons2.remove(end_exon2)       
+        if len(liste_start_exons1)==0 and len(liste_end_exons1)==0 :
+            results='orthologous'
+            break
         #print(f'Results between {id_gene1} and {id_gene2} \n This genes are orthologous ##################################')
-    else :
-        return('partially_orthologous')
-        #print(f'Results between {id_gene1} and {id_gene2} \n This genes are partially orthologous\n {len(liste_start_exons1)} {len(dict_annot_sp1[id_gene1][2])}')   
+        else :
+            results='partially_orthologous'
+        #print(f'Results between {id_gene1} and {id_gene2} \n This genes are partially orthologous\n {len(liste_start_exons1)} {len(liste_end_exons1)} {len(list(dict_annot_sp2[id_gene2][3]))}')
+    return(results)  
 
 for gene in association_id_id:
     associated_gene_list=association_id_id[gene]
@@ -187,15 +305,16 @@ for gene in association_id_id:
             else:
                 partially_orthologs_file.write(gene+'\t'+associated_gene+'\n')
         elif len(species1_annotations[gene][2])!=len(species2_annotations[associated_gene][2]) and (len(species1_annotations[gene][2]) != 1 or len(species2_annotations[associated_gene][2]) != 1):
-            decision=make_decision_multvsmult(association_id_id,association_id_line,species1_annotations,species2_annotations,gene,associated_gene)
-            if decision=='orthologous':
-                orthologs_file.write(gene+'\t'+associated_gene+'\n')
-            else:
-                partially_orthologs_file.write(gene+'\t'+associated_gene+'\n')
+            #decision=make_decision_multvsmult(association_id_id,association_id_line,species1_annotations,species2_annotations,gene,associated_gene)
+            #if decision=='orthologous':
+            #    orthologs_file.write(gene+'\t'+associated_gene+'\n')
+            #else:
+            partially_orthologs_file.write(gene+'\t'+associated_gene+'\n')
+            #print("partially_orthologs : "+gene+'\t'+associated_gene+'\n')
         else : 
-            decision=make_decision_same_mumber(association_id_id,association_id_line,species1_annotations,species2_annotations,gene,associated_gene)
+            decision=make_decision_same_number(association_id_id,association_id_line,species1_annotations,species2_annotations,gene,associated_gene)
             if decision=='orthologous':
-                orthologs_file.write(gene+'\t'+associated_gene+'\n')
+                orthologs_file.write(gene+'\t'+associated_gene+'\t more than one exon'+'\n')
             else:
                 partially_orthologs_file.write(gene+'\t'+associated_gene+'\n')
 orthologs_file.close()
