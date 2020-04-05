@@ -1,6 +1,7 @@
 # This program require one maf file and two annotations from UCSC genome browser in refgene format.
 
 path=$(dirname $0)
+threshold=0.5
 
 while [ -n "$1" ]; do 
     case "$1" in 
@@ -41,7 +42,9 @@ while [ -n "$1" ]; do
         else
             echo "it's not the good format"
             exit 0;
-        fi
+        fi;;
+    -t) 
+        threshold="$2"
     esac
     shift
 done
@@ -60,5 +63,5 @@ seg-join intersect.seg $path_2/sort_$filename_2.seg | seg-swap | seg-sort > all_
 rm $path_1/sort_$filename_1.seg $final_path $path_2/sort_$filename_2.seg intersect.seg
 echo "done"
 echo "########################### Calculating homology ###############################"
-python3 $path/count_intersections_unions.py all_intersect.seg $file_org1 $file_org2 
+python3 $path/count_intersections_unions.py all_intersect.seg $file_org1 $file_org2 $threshold
 echo "done"

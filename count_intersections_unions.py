@@ -2,6 +2,7 @@ import sys
 results_seg=sys.argv[1]
 annotations_sp1=sys.argv[2]
 annotations_sp2=sys.argv[3]
+threshold=float(sys.argv[4])
 orthologs_file=open('orthologs.txt','w')
 partially_orthologs_file=open('partially_orthologs.txt','w')
 perfectly_orthologs_file=open('perfectly_orthologs.txt','w')
@@ -41,7 +42,7 @@ def ret_dict_intersections(seg_file): #build a dictionary wich contain the assoc
     results_file.close()
     return(intersections_sp1_2)
 
-def calculate_similarity(annot_1,annot_2,intersections,ortho,part_ortho,perf_ortho):
+def calculate_similarity(annot_1,annot_2,intersections,ortho,part_ortho,perf_ortho,thr):
     for id in intersections:
         gene=id.split('-')
         gene1=gene[0]
@@ -54,7 +55,7 @@ def calculate_similarity(annot_1,annot_2,intersections,ortho,part_ortho,perf_ort
             similarity=float(length_intersections/unions) # here we calculate similarity rate 
             if similarity == 1.0 :
                 perf_ortho.write(gene1+'\t'+gene2+'\t'+str(similarity)+'\n')
-            elif similarity < 1 and similarity >= 0.5 :
+            elif similarity < 1 and similarity >= thr :
                 ortho.write(gene1+'\t'+gene2+'\t'+str(similarity)+'\n')
             else :
                 part_ortho.write(gene1+'\t'+gene2+'\t'+str(similarity)+'\n')
@@ -66,7 +67,7 @@ def calculate_similarity(annot_1,annot_2,intersections,ortho,part_ortho,perf_ort
             similarity=float(length_intersections/unions)
             if similarity == 1.0 :
                 perf_ortho.write(gene1+'\t'+gene2+'\t'+str(similarity)+'\n')
-            elif similarity < 1 and similarity >= 0.5 : # threshold to determine if we have an orthologs or not 
+            elif similarity < 1 and similarity >= thr : # threshold to determine if we have an orthologs or not 
                 ortho.write(gene1+'\t'+gene2+'\t'+str(similarity)+'\n')
             else :
                 part_ortho.write(gene1+'\t'+gene2+'\t'+str(similarity)+'\n')
@@ -74,7 +75,7 @@ def calculate_similarity(annot_1,annot_2,intersections,ortho,part_ortho,perf_ort
  
 intersections=ret_dict_intersections(results_seg)
 
-calculate_similarity(GeneID_length_species1,GeneID_length_species2,intersections,orthologs_file,partially_orthologs_file,perfectly_orthologs_file)
+calculate_similarity(GeneID_length_species1,GeneID_length_species2,intersections,orthologs_file,partially_orthologs_file,perfectly_orthologs_file,threshold)
 orthologs_file.close()
 partially_orthologs_file.close()
 perfectly_orthologs_file.close()
