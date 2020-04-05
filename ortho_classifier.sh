@@ -1,25 +1,64 @@
-if [ $# -ne 3 ]
-then
-    echo "Invalid number of argument (must be 3)"
-else
-    sh compile_ortho_decider.sh $1 $2
-    organism=$(echo $3 | cut -d_ -f2 | cut -d. -f1)
-    dir=$(dirname $3)
-    filename_ref=$(basename -- "$3")
-    extension="${filename_ref##*.}"
-    filename_ref="${filename_ref%.*}"
-    file_seg="$filename_ref.seg"
-    echo "#############################Importing RefGene file to seg format#####################################"
-    seg-import -c genePred $dir/$filename_ref.$extension > $dir/$file_seg
-    newfilename='modified_'$file_seg
-    python3 modify_file.py $dir/$file_seg $dir/$newfilename $organism
-    seg-sort $dir/$newfilename > $dir/sort_$file_seg
-    rm $dir/$newfilename $dir/$file_seg
-    echo "########################### Joining file ###############################"
-    seg-join sort_swap_intersections_maf_refgene.seg $dir/sort_$file_seg > intersect.seg
-    seg-swap intersect.seg > tmp.seg
-    seg-sort tmp.seg > all_intersect.seg
-    rm sort_swap_intersections_maf_refgene.seg $dir/sort_$file_seg intersect.seg tmp.seg
-    echo "###################################### Decide orthology ###################################"
-    python3 position_comparison.py all_intersect.seg $2 $3 
-fi
+# This program require one maf file and two annotations from UCSC genome browser in refgene format.
+
+path=$(dirname $0)
+
+while [ -n "$1" ]; do 
+    case "$1" in 
+    -file) 
+        file_org1=$2
+        file_org2=$3
+        for i in $2 $3;
+        do 
+            organism=$(echo $i | cut -d_ -f2 | cut -d. -f1)
+            dir=$(dirname $i)
+            file=$(basename $i)
+            filename=$(basename -- "$i")
+            extension="${filename##.}"
+            filename="${filename%.*}"
+            echo '############################Importing refgene file to seg format########################################'
+            seg-import -c genePred $dir/$file > $dir/$filename.seg
+            python3 $path/modify_file.py $dir/$filename.seg $dir/modified_$filename.seg $organism
+            seg-sort $dir/modified_$filename.seg > $dir/sort_$filename.seg
+            rm $dir/$filename.seg $dir/modified_$filename.seg
+            echo "done"
+        done;;
+    -maf)
+        maf_file="$2"
+        end_file=$(echo $maf_file| awk -F. '{ print $NF }')
+        if [ $end_file == "maf" ];
+        then 
+            dir_maf=$(dirname $maf_file)
+            file=$(basename $maf_file)
+            filename=$(basename -- "$maf_file")
+            extension="${filename##*.}"
+            filename="${filename%.*}"
+            echo '############################Importing maf file to seg format########################################'
+            seg-import maf $dir_maf/$file > $dir_maf/$filename.seg
+            seg-sort $dir_maf/$filename.seg > $dir_maf/sort_$filename.seg
+            final_path=$dir_maf/sort_$filename.seg
+            rm $dir_maf/$filename.seg
+            echo "done"
+        else
+            echo "it's not the good format"
+            exit 0;
+        fi
+    esac
+    shift
+done
+
+file_name_1=$(basename $file_org1)
+filename_1="${file_name_1%.*}"
+file_name_2=$(basename $file_org2)
+filename_2="${file_name_2%.*}"
+path_1=$(dirname $file_org1)
+path_2=$(dirname $file_org2)
+path_maf=$(dirname $final_path)
+file_maf=$(basename $final_path)
+echo "########################### Joining file ###############################"
+seg-join $final_path $path_1/sort_$filename_1.seg| seg-swap | seg-sort > intersect.seg
+seg-join intersect.seg $path_2/sort_$filename_2.seg | seg-swap | seg-sort > all_intersect.seg
+rm $path_1/sort_$filename_1.seg $final_path $path_2/sort_$filename_2.seg intersect.seg
+echo "done"
+echo "########################### Calculating homology ###############################"
+python3 $path/count_intersections_unions.py all_intersect.seg $file_org1 $file_org2 
+echo "done"
