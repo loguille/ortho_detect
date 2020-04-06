@@ -35,6 +35,8 @@ while [ -n "$1" ]; do
             filename="${filename%.*}"
             echo '############################Importing maf file to seg format########################################'
             seg-import maf $dir_maf/$file > $dir_maf/$filename.seg
+            #python3 modify_file_maf.py $dir_maf/$filename.seg $dir_maf/modified_$filename.seg hg38 panTro5
+            #mv $dir_maf/modified_$filename.seg $dir_maf/$filename.seg
             seg-sort $dir_maf/$filename.seg > $dir_maf/sort_$filename.seg
             final_path=$dir_maf/sort_$filename.seg
             rm $dir_maf/$filename.seg

@@ -52,13 +52,16 @@ def calculate_similarity(annot_1,annot_2,intersections,ortho,part_ortho,perf_ort
             length_gene1=annot_1[gene1]
             length_gene2=annot_2[gene2]
             unions=length_gene1-length_intersections+length_gene2
-            similarity=float(length_intersections/unions) # here we calculate similarity rate 
-            if similarity == 1.0 :
-                perf_ortho.write(gene1+'\t'+gene2+'\t'+str(similarity)+'\n')
-            elif similarity < 1 and similarity >= thr :
-                ortho.write(gene1+'\t'+gene2+'\t'+str(similarity)+'\n')
+            if unions > 0 :
+                similarity=float(length_intersections/unions) # here we calculate similarity rate 
+                if similarity == 1.0 :
+                    perf_ortho.write(gene1+'\t'+gene2+'\t'+str(similarity)+'\n')
+                elif similarity < 1 and similarity >= thr :
+                    ortho.write(gene1+'\t'+gene2+'\t'+str(similarity)+'\n')
+                else :
+                    part_ortho.write(gene1+'\t'+gene2+'\t'+str(similarity)+'\n')
             else :
-                part_ortho.write(gene1+'\t'+gene2+'\t'+str(similarity)+'\n')
+                perf_ortho.write(gene1+'\t'+gene2+'\t1'+'\n')
             #print(f'{gene1} {gene2} {length_intersections} {length_gene1} {length_gene2} {similarity}')
         else :
             length_gene1=annot_2[gene1]
