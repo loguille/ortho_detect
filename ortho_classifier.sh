@@ -8,20 +8,40 @@ while [ -n "$1" ]; do
     -file) 
         file_org1=$2
         file_org2=$3
+        count=0
         for i in $2 $3;
         do 
+            count=$(($count+1))
             organism=$(echo $i | cut -d_ -f2 | cut -d. -f1)
             dir=$(dirname $i)
             file=$(basename $i)
             filename=$(basename -- "$i")
-            extension="${filename##.}"
+            extension="${filename##*.}"
             filename="${filename%.*}"
-            echo '############################Importing refgene file to seg format########################################'
-            seg-import -c genePred $dir/$file > $dir/$filename.seg
-            python3 $path/modify_file.py $dir/$filename.seg $dir/modified_$filename.seg $organism
-            seg-sort $dir/modified_$filename.seg > $dir/sort_$filename.seg
-            rm $dir/$filename.seg $dir/modified_$filename.seg
+            if [ $extension == "txt" ]
+            then
+                echo '############################Importing refgene file to seg format########################################'
+                seg-import -c genePred $dir/$file > $dir/$filename.seg
+                python3 $path/modify_file.py $dir/$filename.seg $dir/modified_$filename.seg $organism
+                seg-sort $dir/modified_$filename.seg > $dir/sort_$filename.seg
+                rm $dir/$filename.seg $dir/modified_$filename.seg
+            else
+                echo '############################Importing GTF file to seg format########################################'
+                organism=$(echo $file | cut -d. -f1)
+                ./$path/gtfToGenePred $i $dir/tmp.txt
+                python3 $path/add_columns.py $dir/tmp.txt $dir/refGene_$organism.txt
+                if [ $count -eq 1 ] 
+                then
+                    file_org1=$dir/refGene_$organism.txt
+                else
+                    file_org2=$dir/refGene_$organism.txt
+                fi
+                seg-import -c genePred $dir/refGene_$organism.txt > $dir/refGene_$organism.seg
+                python3 $path/modify_file.py $dir/refGene_$organism.seg $dir/modified_refGene_$organism.seg $organism
+                seg-sort $dir/modified_refGene_$organism.seg > $dir/sort_refGene_$organism.seg
+                rm $dir/refGene_$organism.seg $dir/modified_refGene_$organism.seg $dir/tmp.txt
             echo "done"
+            fi
         done;;
     -maf)
         maf_file="$2"
@@ -49,7 +69,7 @@ while [ -n "$1" ]; do
         threshold="$2"
     esac
     shift
-done
+done;
 
 file_name_1=$(basename $file_org1)
 filename_1="${file_name_1%.*}"

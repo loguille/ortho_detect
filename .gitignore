@@ -1,3 +1,6 @@
 all_intersect.seg
 compile_ortho_decider.sh
 position_comparison.py
+perfectly_orthologs.txt
+partially_orthologs.txt
+orthologs.txt
